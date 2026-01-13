@@ -3,11 +3,7 @@ class Platform {
   final String name;
   final String description;
 
-  Platform({
-    required this.id,
-    required this.name,
-    required this.description,
-  });
+  Platform({required this.id, required this.name, required this.description});
 
   factory Platform.fromJson(Map<String, dynamic> json) {
     return Platform(
@@ -18,10 +14,6 @@ class Platform {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'description': description,
-    };
+    return {'id': id, 'name': name, 'description': description};
   }
 }

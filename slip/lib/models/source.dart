@@ -21,11 +21,6 @@ class Source {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'url': url,
-      'description': description,
-    };
+    return {'id': id, 'name': name, 'url': url, 'description': description};
   }
 }

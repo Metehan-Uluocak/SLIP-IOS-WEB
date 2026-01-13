@@ -60,10 +60,7 @@ class SourcesScreen extends GetView<SourceController> {
                       title: Text(source.name),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(source.url),
-                          Text(source.description),
-                        ],
+                        children: [Text(source.url), Text(source.description)],
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -129,13 +126,10 @@ class SourcesScreen extends GetView<SourceController> {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('İptal'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('İptal')),
           ElevatedButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && 
+              if (nameController.text.isNotEmpty &&
                   urlController.text.isNotEmpty &&
                   descriptionController.text.isNotEmpty) {
                 final source = Source(
@@ -160,7 +154,9 @@ class SourcesScreen extends GetView<SourceController> {
   void _showEditSourceDialog(Source source) {
     final nameController = TextEditingController(text: source.name);
     final urlController = TextEditingController(text: source.url);
-    final descriptionController = TextEditingController(text: source.description);
+    final descriptionController = TextEditingController(
+      text: source.description,
+    );
 
     Get.dialog(
       AlertDialog(
@@ -197,13 +193,10 @@ class SourcesScreen extends GetView<SourceController> {
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('İptal'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('İptal')),
           ElevatedButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && 
+              if (nameController.text.isNotEmpty &&
                   urlController.text.isNotEmpty &&
                   descriptionController.text.isNotEmpty) {
                 final updatedSource = Source(

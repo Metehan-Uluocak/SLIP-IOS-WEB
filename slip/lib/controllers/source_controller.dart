@@ -67,6 +67,7 @@ class SourceController extends GetxController {
     }
   }
 
+  @override
   void refresh() {
     fetchSources();
   }

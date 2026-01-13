@@ -4,7 +4,7 @@ import '../services/api_service.dart';
 
 class AuthController extends GetxController {
   static AuthController get instance => Get.find();
-  
+
   final Rx<User?> _currentUser = Rx<User?>(null);
   final RxBool isLoading = false.obs;
 
@@ -14,8 +14,7 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    ever(_currentUser, (_) {
-    });
+    ever(_currentUser, (_) {});
   }
 
   //AUTHORIZATION HELPERS
@@ -59,7 +58,4 @@ class AuthController extends GetxController {
     _currentUser.value = null;
     Get.offAllNamed('/login');
   }
-
 }
-
-

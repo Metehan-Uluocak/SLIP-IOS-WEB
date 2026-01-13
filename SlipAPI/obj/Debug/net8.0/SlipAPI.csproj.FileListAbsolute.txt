@@ -133,3 +133,4 @@
 /home/mete/Desktop/SLIP/SlipAPI/obj/Debug/net8.0/SlipAPI.pdb
 /home/mete/Desktop/SLIP/SlipAPI/obj/Debug/net8.0/SlipAPI.genruntimeconfig.cache
 /home/mete/Desktop/SLIP/SlipAPI/obj/Debug/net8.0/ref/SlipAPI.dll
+/home/mete/Desktop/SLIP/SlipAPI/obj/Debug/net8.0/SlipAPI.sourcelink.json

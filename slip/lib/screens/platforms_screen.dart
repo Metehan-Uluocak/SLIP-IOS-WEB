@@ -68,7 +68,8 @@ class PlatformsScreen extends GetView<PlatformController> {
                           ),
                           IconButton(
                             icon: const Icon(Icons.delete),
-                            onPressed: () => controller.deletePlatform(platform.id),
+                            onPressed: () =>
+                                controller.deletePlatform(platform.id),
                           ),
                         ],
                       ),
@@ -112,13 +113,10 @@ class PlatformsScreen extends GetView<PlatformController> {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('İptal'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('İptal')),
           ElevatedButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && 
+              if (nameController.text.isNotEmpty &&
                   descriptionController.text.isNotEmpty) {
                 final platform = Platform(
                   id: 0,
@@ -140,7 +138,9 @@ class PlatformsScreen extends GetView<PlatformController> {
 
   void _showEditPlatformDialog(Platform platform) {
     final nameController = TextEditingController(text: platform.name);
-    final descriptionController = TextEditingController(text: platform.description);
+    final descriptionController = TextEditingController(
+      text: platform.description,
+    );
 
     Get.dialog(
       AlertDialog(
@@ -167,13 +167,10 @@ class PlatformsScreen extends GetView<PlatformController> {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('İptal'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('İptal')),
           ElevatedButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && 
+              if (nameController.text.isNotEmpty &&
                   descriptionController.text.isNotEmpty) {
                 final updatedPlatform = Platform(
                   id: platform.id,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/theme_controller.dart';
@@ -8,190 +9,331 @@ class MainLayout extends StatelessWidget {
   final String title;
   final Widget body;
 
-  const MainLayout({
-    super.key,
-    required this.title,
-    required this.body,
-  });
+  const MainLayout({super.key, required this.title, required this.body});
 
   @override
   Widget build(BuildContext context) {
-    // Tag ile AuthController'a eriş
-    //final controller = Get.find<AuthController>(tag: 'auth');
     final themeController = Get.find<ThemeController>();
-    
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        actions: [
-          Obx(() => IconButton(
-            icon: Icon(
-              themeController.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+    final auth = Get.find<AuthController>(tag: 'auth');
+
+    int routeToIndex(String route) {
+      switch (route) {
+        case AppRoutes.dashboard:
+          return 0;
+        case AppRoutes.sources:
+          return 1;
+        case AppRoutes.platforms:
+          return 2;
+        case AppRoutes.users:
+          return 3;
+        default:
+          return 0;
+      }
+    }
+
+    void onNavTap(int index) {
+      switch (index) {
+        case 0:
+          Get.offAllNamed(AppRoutes.dashboard);
+          break;
+        case 1:
+          if (auth.canManageSources()) {
+            Get.offAllNamed(AppRoutes.sources);
+          }
+          break;
+        case 2:
+          if (auth.canManagePlatforms()) {
+            Get.offAllNamed(AppRoutes.platforms);
+          }
+          break;
+        case 3:
+          if (auth.canManageUsers()) {
+            Get.offAllNamed(AppRoutes.users);
+          }
+          break;
+      }
+    }
+
+    final currentIndex = routeToIndex(Get.currentRoute);
+
+    // iOS: Tamamen farklı bir duruş – gradient arkaplan + altta Cupertino tab bar
+    if (GetPlatform.isIOS) {
+      return CupertinoPageScaffold(
+        child: Stack(
+          children: [
+            // Gradient arkaplan
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF1F2D3D), Color(0xFF4C78FF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
             ),
-            tooltip: themeController.isDarkMode ? 'Light Mode' : 'Dark Mode',
-            onPressed: () => themeController.toggleTheme(),
-          )),
-          const SizedBox(width: 8),
-        ],
-      ),
-      drawer: GetBuilder<AuthController>(
-        tag: 'auth',
-        builder: (controller) {
-          final currentUser = controller.currentUser;
-          
-          return Drawer(
-            child: ListView(
-              padding: EdgeInsets.zero,
+            // İçerik
+            SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Büyük başlık ve tema tuşu
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(
+                              CupertinoIcons.eye,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              title,
+                              style: const TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Obx(
+                              () => CupertinoButton(
+                                padding: EdgeInsets.zero,
+                                onPressed: () => themeController.toggleTheme(),
+                                child: Icon(
+                                  themeController.isDarkMode
+                                      ? CupertinoIcons.sun_max
+                                      : CupertinoIcons.moon,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            CupertinoButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () {
+                                showCupertinoDialog(
+                                  context: context,
+                                  builder: (ctx) => CupertinoAlertDialog(
+                                    title: const Text('Çıkış Yap'),
+                                    content: const Text(
+                                      'Hesabınızdan çıkış yapmak istiyor musunuz?',
+                                    ),
+                                    actions: [
+                                      CupertinoDialogAction(
+                                        onPressed: () => Navigator.pop(ctx),
+                                        child: const Text('İptal'),
+                                      ),
+                                      CupertinoDialogAction(
+                                        isDestructiveAction: true,
+                                        onPressed: () {
+                                          Navigator.pop(ctx);
+                                          auth.logout();
+                                        },
+                                        child: const Text('Çıkış'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              child: const Icon(
+                                CupertinoIcons.square_arrow_right,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      margin: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: body,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Altta Cupertino tab bar
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: CupertinoTabBar(
+                currentIndex: currentIndex,
+                onTap: onNavTap,
+                items: [
+                  const BottomNavigationBarItem(
+                    icon: Icon(CupertinoIcons.speedometer),
+                    label: 'Dashboard',
+                  ),
+                  if (auth.canManageSources())
+                    const BottomNavigationBarItem(
+                      icon: Icon(CupertinoIcons.link),
+                      label: 'Kaynaklar',
+                    ),
+                  if (auth.canManagePlatforms())
+                    const BottomNavigationBarItem(
+                      icon: Icon(CupertinoIcons.device_laptop),
+                      label: 'Platformlar',
+                    ),
+                  if (auth.canManageUsers())
+                    const BottomNavigationBarItem(
+                      icon: Icon(CupertinoIcons.person_2),
+                      label: 'Kullanıcılar',
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Material: Drawer yerine modern bottom nav + gradient arkaplan
+    return Scaffold(
+      appBar: null,
+      body: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF101828), Color(0xFF5E5CE6)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                DrawerHeader(
-                  decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
-                          const Icon(Icons.security, size: 48, color: Colors.white),
+                          const Icon(
+                            Icons.visibility,
+                            color: Colors.white,
+                            size: 28,
+                          ),
                           const SizedBox(width: 8),
-                          const Text(
-                            'SLIP',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 48,
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 26,
                               fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
                           ),
                         ],
                       ),
-                      if (currentUser != null) ...[
-                        SizedBox(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                currentUser.name,
-                                style: const TextStyle(
+                        Row(
+                          children: [
+                            Obx(
+                              () => IconButton(
+                                icon: Icon(
+                                  themeController.isDarkMode
+                                      ? Icons.light_mode
+                                      : Icons.dark_mode,
                                   color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold
                                 ),
+                                onPressed: () => themeController.toggleTheme(),
+                                tooltip: themeController.isDarkMode
+                                    ? 'Light Mode'
+                                    : 'Dark Mode',
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                currentUser.email,
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                ),
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.logout,
+                                color: Colors.white,
                               ),
-                            ],
-                          ),
+                              tooltip: 'Çıkış Yap',
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('Çıkış Yap'),
+                                    content: const Text(
+                                      'Hesabınızdan çıkış yapmak istiyor musunuz?',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(ctx),
+                                        child: const Text('İptal'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(ctx);
+                                          auth.logout();
+                                        },
+                                        child: const Text('Çıkış'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
-                      ] else ...[
-                        const Text(
-                          'Hata: Kullanıcı bilgisi bulunamadı',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
                     ],
                   ),
                 ),
-                ListTile(
-                  leading: const Icon(Icons.dashboard),
-                  title: const Text('Dashboard'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Get.offAllNamed(AppRoutes.dashboard);
-                  },
-                ),
-                if (controller.canManageSources())
-                  ListTile(
-                    leading: const Icon(Icons.source),
-                    title: const Text('Kaynaklar'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Get.offAllNamed(AppRoutes.sources);
-                    },
-                  ),
-                if (controller.canManagePlatforms())
-                  ListTile(
-                    leading: const Icon(Icons.laptop),
-                    title: const Text('Platformlar'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Get.offAllNamed(AppRoutes.platforms);
-                    },
-                  ),
-                if (controller.canManageUsers())
-                  ListTile(
-                    leading: const Icon(Icons.people),
-                    title: const Text('Kullanıcılar'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      Get.offAllNamed(AppRoutes.users);
-                    },
-                  ),
-                const Divider(),
-                if (currentUser != null)
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Yetkileriniz:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        _buildPermissionChip('Sızıntıları Görüntüleme', controller.canViewLeaks()),
-                        _buildPermissionChip('Kaynak Yönetimi', controller.canManageSources()),
-                        _buildPermissionChip('Platform Yönetimi', controller.canManagePlatforms()),
-                        _buildPermissionChip('Kullanıcı Yönetimi', controller.canManageUsers()),
-                      ],
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(20),
                     ),
+                    child: body,
                   ),
-                const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.logout),
-                  title: const Text('Çıkış Yap'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    controller.logout();
-                  },
                 ),
               ],
             ),
-          );
-        },
+          ),
+        ],
       ),
-      body: body,
-    );
-  }
-
-  Widget _buildPermissionChip(String label, bool hasPermission) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        children: [
-          Icon(
-            hasPermission ? Icons.check_circle : Icons.cancel,
-            size: 16,
-            color: hasPermission ? Colors.green : Colors.red,
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: currentIndex,
+        onDestinationSelected: onNavTap,
+        destinations: [
+          const NavigationDestination(
+            icon: Icon(Icons.dashboard_outlined),
+            selectedIcon: Icon(Icons.dashboard),
+            label: 'Dashboard',
           ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(fontSize: 12),
+          if (auth.canManageSources())
+            const NavigationDestination(
+              icon: Icon(Icons.link_outlined),
+              selectedIcon: Icon(Icons.link),
+              label: 'Kaynaklar',
             ),
-          ),
+          if (auth.canManagePlatforms())
+            const NavigationDestination(
+              icon: Icon(Icons.laptop_outlined),
+              selectedIcon: Icon(Icons.laptop),
+              label: 'Platformlar',
+            ),
+          if (auth.canManageUsers())
+            const NavigationDestination(
+              icon: Icon(Icons.people_outline),
+              selectedIcon: Icon(Icons.people),
+              label: 'Kullanıcılar',
+            ),
         ],
       ),
     );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../widgets/main_layout.dart';
@@ -10,44 +11,55 @@ class DashboardScreen extends GetView<LeakController> {
   @override
   Widget build(BuildContext context) {
     return MainLayout(
-      title: 'Dashboard',
+      title: 'Keşfet',
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    decoration: const InputDecoration(
-                      labelText: 'Ara...',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.search),
-                      hintText: 'Platform, başlık veya özet ara',
-                    ),
-                    onChanged: (value) => controller.setSearchQuery(value),
+                  child: Builder(
+                    builder: (_) {
+                      if (GetPlatform.isIOS) {
+                        return CupertinoTextField(
+                          placeholder: 'Ara (platform, başlık, özet)...',
+                          prefix: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Icon(CupertinoIcons.search),
+                          ),
+                          onChanged: controller.setSearchQuery,
+                        );
+                      }
+                      return SearchBar(
+                        hintText: 'Ara (platform, başlık, özet)...',
+                        leading: const Icon(Icons.search),
+                        onChanged: controller.setSearchQuery,
+                      );
+                    },
                   ),
                 ),
-                const SizedBox(width: 16),
-                Obx(() => DropdownButton<String>(
-                  hint: const Text('Platform Filtrele'),
-                  value: controller.filterPlatform.value,
-                  items: [
-                    const DropdownMenuItem(value: null, child: Text('Tümü')),
-                    ...controller.availablePlatforms.map(
-                      (platform) => DropdownMenuItem(
-                        value: platform,
-                        child: Text(platform),
+                const SizedBox(width: 12),
+                Obx(
+                  () => DropdownButton<String>(
+                    hint: const Text('Platform'),
+                    value: controller.filterPlatform.value,
+                    items: [
+                      const DropdownMenuItem(value: null, child: Text('Tümü')),
+                      ...controller.availablePlatforms.map(
+                        (platform) => DropdownMenuItem(
+                          value: platform,
+                          child: Text(platform),
+                        ),
                       ),
-                    ),
-                  ],
-                  onChanged: (value) => controller.setFilterPlatform(value),
-                )),
-                const SizedBox(width: 8),
+                    ],
+                    onChanged: controller.setFilterPlatform,
+                  ),
+                ),
                 IconButton(
                   icon: const Icon(Icons.refresh),
                   tooltip: 'Yenile',
-                  onPressed: () => controller.refresh(),
+                  onPressed: () => controller.fetchLeaks(),
                 ),
               ],
             ),
@@ -59,7 +71,6 @@ class DashboardScreen extends GetView<LeakController> {
               }
 
               final filteredLeaks = controller.filteredLeaks;
-
               if (filteredLeaks.isEmpty) {
                 return Center(
                   child: Column(
@@ -72,8 +83,8 @@ class DashboardScreen extends GetView<LeakController> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        controller.searchQuery.value.isNotEmpty || 
-                        controller.filterPlatform.value != null
+                        controller.searchQuery.value.isNotEmpty ||
+                                controller.filterPlatform.value != null
                             ? 'Arama kriterlerine uygun sızıntı bulunamadı'
                             : 'Henüz sızıntı bulunmuyor',
                         style: Theme.of(context).textTheme.titleMedium,
@@ -94,18 +105,31 @@ class DashboardScreen extends GetView<LeakController> {
                         horizontal: 16,
                         vertical: 8,
                       ),
-                      elevation: 2,
+                      elevation: 0,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surface.withValues(alpha: 0.6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       child: ExpansionTile(
                         leading: CircleAvatar(
-                          backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.primaryContainer,
                           child: Icon(
-                            Icons.warning_amber,
-                            color: Theme.of(context).colorScheme.error,
+                            Icons.remove_red_eye,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onPrimaryContainer,
                           ),
                         ),
                         title: Text(
                           leak.title,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,12 +137,18 @@ class DashboardScreen extends GetView<LeakController> {
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                Icon(Icons.laptop, size: 14, color: Colors.grey.shade600),
+                                Icon(
+                                  Icons.laptop,
+                                  size: 14,
+                                  color: Colors.white70,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   leak.platformName,
                                   style: TextStyle(
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -127,19 +157,29 @@ class DashboardScreen extends GetView<LeakController> {
                             const SizedBox(height: 2),
                             Row(
                               children: [
-                                Icon(Icons.calendar_today, size: 14, color: Colors.grey.shade600),
+                                Icon(
+                                  Icons.calendar_today,
+                                  size: 14,
+                                  color: Colors.white70,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   _formatDate(leak.publishDate),
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                                 const SizedBox(width: 16),
-                                Icon(Icons.source, size: 14, color: Colors.grey.shade600),
+                                Icon(
+                                  Icons.source,
+                                  size: 14,
+                                  color: Colors.white70,
+                                ),
                                 const SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
                                     leak.sourceName,
-                                    style: Theme.of(context).textTheme.bodySmall,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
@@ -154,8 +194,9 @@ class DashboardScreen extends GetView<LeakController> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Özet:',
-                                  style: Theme.of(context).textTheme.titleSmall,
+                                  'Özet',
+                                  style: Theme.of(context).textTheme.titleSmall
+                                      ?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(leak.summary),
@@ -166,7 +207,8 @@ class DashboardScreen extends GetView<LeakController> {
                                     TextButton.icon(
                                       icon: const Icon(Icons.open_in_new),
                                       label: const Text('Kaynağı Görüntüle'),
-                                      onPressed: () => _launchURL(leak.sourceUrl),
+                                      onPressed: () =>
+                                          _launchURL(leak.sourceUrl),
                                     ),
                                   ],
                                 ),
@@ -181,7 +223,6 @@ class DashboardScreen extends GetView<LeakController> {
               );
             }),
           ),
-          // İstatistik kartı
           Obx(() {
             final totalLeaks = controller.leaks.length;
             final filteredCount = controller.filteredLeaks.length;
@@ -190,12 +231,10 @@ class DashboardScreen extends GetView<LeakController> {
             return Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                border: Border(
-                  top: BorderSide(
-                    color: Theme.of(context).colorScheme.outline,
-                    width: 1,
-                  ),
+                color: Colors.white.withValues(alpha: 0.06),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
                 ),
               ),
               child: Row(
@@ -228,7 +267,12 @@ class DashboardScreen extends GetView<LeakController> {
     );
   }
 
-  Widget _buildStatItem(BuildContext context, IconData icon, String label, String value) {
+  Widget _buildStatItem(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String value,
+  ) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -236,14 +280,11 @@ class DashboardScreen extends GetView<LeakController> {
         const SizedBox(height: 4),
         Text(
           value,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         ),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }

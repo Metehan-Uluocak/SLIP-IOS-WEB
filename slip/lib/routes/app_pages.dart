@@ -12,10 +12,7 @@ import 'app_routes.dart';
 
 class AppPages {
   static final pages = [
-    GetPage(
-      name: AppRoutes.login,
-      page: () => const LoginScreen(),
-    ),
+    GetPage(name: AppRoutes.login, page: () => const LoginScreen()),
     GetPage(
       name: AppRoutes.dashboard,
       page: () => const DashboardScreen(),

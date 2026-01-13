@@ -67,6 +67,7 @@ class PlatformController extends GetxController {
     }
   }
 
+  @override
   void refresh() {
     fetchPlatforms();
   }

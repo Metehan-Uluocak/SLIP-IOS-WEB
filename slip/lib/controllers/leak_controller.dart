@@ -12,17 +12,26 @@ class LeakController extends GetxController {
     var result = leaks.toList();
 
     if (searchQuery.value.isNotEmpty) {
-      result = result.where((leak) =>
-        leak.title.toLowerCase().contains(searchQuery.value.toLowerCase()) ||
-        leak.platformName.toLowerCase().contains(searchQuery.value.toLowerCase()) ||
-        leak.summary.toLowerCase().contains(searchQuery.value.toLowerCase())
-      ).toList();
+      result = result
+          .where(
+            (leak) =>
+                leak.title.toLowerCase().contains(
+                  searchQuery.value.toLowerCase(),
+                ) ||
+                leak.platformName.toLowerCase().contains(
+                  searchQuery.value.toLowerCase(),
+                ) ||
+                leak.summary.toLowerCase().contains(
+                  searchQuery.value.toLowerCase(),
+                ),
+          )
+          .toList();
     }
 
     if (filterPlatform.value != null) {
-      result = result.where((leak) => 
-        leak.platformName == filterPlatform.value
-      ).toList();
+      result = result
+          .where((leak) => leak.platformName == filterPlatform.value)
+          .toList();
     }
 
     return result;
@@ -56,5 +65,4 @@ class LeakController extends GetxController {
   void setFilterPlatform(String? platform) {
     filterPlatform.value = platform;
   }
-
 }

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SlipAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+413f205e703545a2cffba5a456bb6586fd3ce252")]
 [assembly: System.Reflection.AssemblyProductAttribute("SlipAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SlipAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

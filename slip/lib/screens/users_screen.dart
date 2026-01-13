@@ -163,34 +163,33 @@ class UsersScreen extends GetView<UserController> {
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 16),
-              Obx(() => DropdownButtonFormField<UserRole>(
-                value: roleController.value,
-                decoration: const InputDecoration(
-                  labelText: 'Rol',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.security),
+              Obx(
+                () => DropdownButtonFormField<UserRole>(
+                  value: roleController.value,
+                  decoration: const InputDecoration(
+                    labelText: 'Rol',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.security),
+                  ),
+                  items: UserRole.values.map((role) {
+                    return DropdownMenuItem(
+                      value: role,
+                      child: Text(_getRoleText(role)),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) roleController.value = value;
+                  },
                 ),
-                items: UserRole.values.map((role) {
-                  return DropdownMenuItem(
-                    value: role,
-                    child: Text(_getRoleText(role)),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  if (value != null) roleController.value = value;
-                },
-              )),
+              ),
             ],
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('İptal'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('İptal')),
           ElevatedButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && 
+              if (nameController.text.isNotEmpty &&
                   emailController.text.isNotEmpty) {
                 final user = User(
                   id: 0,
@@ -242,34 +241,33 @@ class UsersScreen extends GetView<UserController> {
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: 16),
-              Obx(() => DropdownButtonFormField<UserRole>(
-                value: roleController.value,
-                decoration: const InputDecoration(
-                  labelText: 'Rol',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.security),
+              Obx(
+                () => DropdownButtonFormField<UserRole>(
+                  value: roleController.value,
+                  decoration: const InputDecoration(
+                    labelText: 'Rol',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.security),
+                  ),
+                  items: UserRole.values.map((role) {
+                    return DropdownMenuItem(
+                      value: role,
+                      child: Text(_getRoleText(role)),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) roleController.value = value;
+                  },
                 ),
-                items: UserRole.values.map((role) {
-                  return DropdownMenuItem(
-                    value: role,
-                    child: Text(_getRoleText(role)),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  if (value != null) roleController.value = value;
-                },
-              )),
+              ),
             ],
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('İptal'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('İptal')),
           ElevatedButton(
             onPressed: () {
-              if (nameController.text.isNotEmpty && 
+              if (nameController.text.isNotEmpty &&
                   emailController.text.isNotEmpty) {
                 final updatedUser = User(
                   id: user.id,
@@ -294,16 +292,13 @@ class UsersScreen extends GetView<UserController> {
     Get.dialog(
       AlertDialog(
         title: const Text('Kullanıcıyı Sil'),
-        content: Text('${user.name} adlı kullanıcıyı silmek istediğinize emin misiniz?'),
+        content: Text(
+          '${user.name} adlı kullanıcıyı silmek istediğinize emin misiniz?',
+        ),
         actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('İptal'),
-          ),
+          TextButton(onPressed: () => Get.back(), child: const Text('İptal')),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () {
               controller.deleteUser(user.id);
               Get.back();

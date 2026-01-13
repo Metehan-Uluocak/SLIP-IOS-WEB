@@ -67,8 +67,8 @@ class UserController extends GetxController {
     }
   }
 
+  @override
   void refresh() {
     fetchUsers();
   }
 }
-
