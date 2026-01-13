@@ -1,0 +1,6 @@
+@SlipAPI_HostAddress = http://localhost:5058
+
+GET {{SlipAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
